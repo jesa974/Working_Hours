@@ -9,7 +9,7 @@ gen_cfg_file() {
 	read -p " • Enter the number of hours [35]: " hours
 	hours=${hours:-35}
 
-	read -p " • Enter the taux horaire [7,35]: " rate
+	read -p " • Enter the hourly rate [7,35]: " rate
 	rate=${rate:-7.35}
 
 	# Save the data into a .conf file in the configuration folder
