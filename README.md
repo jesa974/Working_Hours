@@ -35,7 +35,7 @@ Get all the commands
 python3 clock.py help
 ```
 
-You will have some parameters to define :
+Available arguments :
 
   * enter        ---> when you start working
   * lunch        ---> when you go to lunch
