@@ -9,6 +9,7 @@ from os.path import isfile, join
 import sys
 import time
 
+import datetime
 from datetime import date, datetime, timedelta
 
 import smtplib
@@ -116,7 +117,7 @@ def verifyFile(filename):
 		return False
 
 def saveFile(string, filename):
-	fichier = open(PATH+"day/"+filename, "a")
+	fichier = open(PATH+filename, "a")
 	fichier.write(string)
 	fichier.close()
 
@@ -190,7 +191,7 @@ def main(argv):
 		enter = time.perf_counter()
 		
 		# Save the data into a file named day
-		saveFile(str(enter), "day.txt")
+		saveFile(str(enter), "day/day.txt")
 		
 	elif argv == "go":
 		
@@ -207,15 +208,17 @@ def main(argv):
 				print("Work took :", strtime)
 				
 				# Save the data into a file named date_work.log
-				filename = "."+str(date.today())+".log"
+				filename = "day/."+str(date.today())+".log"
 				saveFile("Time of work: "+strtime+"\n", filename)
 				
 				# Erase the file when exiting 
-				cleanFile("day.txt")
+				cleanFile("day/day.txt")
+				cleanFile("day/lunch.txt")
 				
 				# If Friday
-				d = datetime.date.today()
+				d = date.today()
 				if d.weekday() == 4:
+					total = 0
 					my_dir = os.path.expanduser('~/.clock/day/')
 					week_dir = os.path.expanduser('~/.clock/week/')
 					fichiers = [f for f in listdir(my_dir) if isfile(join(my_dir, f))]
@@ -227,8 +230,14 @@ def main(argv):
 							my_file = open(my_dir+fichier, "r")
 							# Get data 
 							result = recupFields(my_file)
+							total = total + result
 							print("Total : "+str(result))
 							my_file.close()
+					print("Total hours for this week : "+displayTime(total))
+					
+					# Save the data into a file named week_work.log
+					filename = "week/."+str(datetime.now().isocalendar()[1])+".log"
+					saveFile("Time of work for this week: "+strtime+"\n", filename)
 			
 			else:
 				print("Lunch not started")
@@ -244,7 +253,7 @@ def main(argv):
 			start = time.perf_counter()
 			
 			# Save the data into a file named lunch
-			saveFile(str(start), "lunch.txt")
+			saveFile(str(start), "day/lunch.txt")
 		
 		else:
 			print("Work not started")
@@ -264,11 +273,8 @@ def main(argv):
 				print("Lunch took :", strtime)
 				
 				# Save the data into a file named date_work.log
-				filename = "."+str(date.today())+".log"
+				filename = "day/."+str(date.today())+".log"
 				saveFile("Time of lunch: "+strtime+"\n", filename)
-				
-				# Erase the file when exiting
-				cleanFile("lunch.txt")
 			
 			else:
 				print("Lunch not started")
