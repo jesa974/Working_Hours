@@ -30,6 +30,18 @@ You will have some parameters to define :
 ---
 ## Usage
 
+Get all the commands
+```
+python3 clock.py help
+```
+
+You will have some parameters to define :
+
+  * enter        ---> when you start working
+  * lunch        ---> when you go to lunch
+  * lunch_end    ---> when you finish your lunch
+  * go           ---> when you finish working
+
 /!\ NOT READY YET /!\
 
 COMING SOON
