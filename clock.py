@@ -109,21 +109,21 @@ def readValue(fileName):
 		return line
 
 def readHour(fileName):
-	fichier = open(PATH+fileName,"r")
+	fichier = open(PATH+"clock.conf","r")
 
 	for line in fichier:
 		fields = line.split(':')
 		return int(fields[0])
 		
-def readRate(fileName):
-	fichier = open(PATH+fileName,"r")
+def readRate():
+	fichier = open(PATH+"clock.conf","r")
 
 	for line in fichier:
 		fields = line.split(':')
 		return float(fields[1])
 		
-def readMargin(fileName):
-	fichier = open(PATH+fileName,"r")
+def readMargin():
+	fichier = open(PATH+"margin.conf","r")
 
 	for line in fichier:
 		fields = line.split('=')
@@ -206,7 +206,7 @@ def recupFields(file):
 
 def writeMargin(margin, supp):
 	
-	total = readMargin("margin.conf")
+	total = readMargin()
 	
 	if supp == True:
 		total = total + margin
@@ -220,7 +220,7 @@ def writeMargin(margin, supp):
 	fichier.close()
 
 def compHours(total):
-	hours = readHour(clock.conf)
+	hours = readHour()
 
 	if total < hours:
 		
