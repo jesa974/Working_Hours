@@ -108,6 +108,27 @@ def readValue(fileName):
 	for line in fichier:
 		return line
 
+def readHour(fileName):
+	fichier = open(PATH+fileName,"r")
+
+	for line in fichier:
+		fields = line.split(':')
+		return int(fields[0])
+		
+def readRate(fileName):
+	fichier = open(PATH+fileName,"r")
+
+	for line in fichier:
+		fields = line.split(':')
+		return float(fields[1])
+		
+def readMargin(fileName):
+	fichier = open(PATH+fileName,"r")
+
+	for line in fichier:
+		fields = line.split('=')
+		return float(fields[1])
+
 def verifyFile(filename):
 	try:
 		with open(PATH+filename): pass
@@ -183,6 +204,53 @@ def recupFields(file):
 	# Return result
 	return work - lunch
 
+def writeMargin(margin, supp):
+	
+	total = readMargin("margin.conf")
+	
+	if supp == True:
+		total = total + margin
+	else:
+		total = total - margin
+	
+	fichier = open(PATH+"margin.conf","w")
+	
+	fichier.write("Total = "+margin)
+	
+	fichier.close()
+
+def compHours(total):
+	hours = readHour(clock.conf)
+
+	if total < hours:
+		
+		# Prevention message
+		msg = "It miss you: " + displayTime((hours*60)-(total*60))
+		
+		# Send mail
+		email= EmailSenderClass()
+		email.sendHtmlEmailTo("Admin","email@email.com",msg)
+		
+		# Register margin
+		writeMargin(hours-total, True)
+		
+	elif total > hours:
+		
+		# Prevention message
+		msg = "You got: " + displayTime((total*60)-(hours*60)) + " more"
+		
+		# Send mail
+		email= EmailSenderClass()
+		email.sendHtmlEmailTo("Admin","email@email.com",msg)
+		
+		# Register margin
+		writeMargin(total-hours, False)
+		
+	else
+		
+		# TODO
+	
+
 def main(argv):
 	
 	if argv == "enter":
@@ -237,7 +305,7 @@ def main(argv):
 					
 					# Save the data into a file named week_work.log
 					filename = "week/."+str(datetime.now().isocalendar()[1])+".log"
-					saveFile("Time of work for this week: "+strtime+"\n", filename)
+					saveFile("Time of work for this week: "+displayTime(total)+"\n", filename)
 			
 			else:
 				print("Lunch not started")
