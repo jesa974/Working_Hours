@@ -42,8 +42,6 @@ Available arguments :
   * lunch_end    ---> when you finish your lunch
   * go           ---> when you finish working
 
-/!\ NOT READY YET /!\
-
 ---
 ## Features in coming
 
