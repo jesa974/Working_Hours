@@ -109,21 +109,21 @@ def readValue(fileName):
 		return line
 
 def readHour(fileName):
-	fichier = open(PATH+"clock.conf","r")
+	fichier = open(PATH+fileName,"r")
 
 	for line in fichier:
 		fields = line.split(':')
 		return int(fields[0])
 		
-def readRate():
-	fichier = open(PATH+"clock.conf","r")
+def readRate(fileName):
+	fichier = open(PATH+fileName,"r")
 
 	for line in fichier:
 		fields = line.split(':')
 		return float(fields[1])
 		
-def readMargin():
-	fichier = open(PATH+"margin.conf","r")
+def readMargin(fileName):
+	fichier = open(PATH+fileName,"r")
 
 	for line in fichier:
 		fields = line.split('=')
@@ -206,26 +206,26 @@ def recupFields(file):
 
 def writeMargin(margin, supp):
 	
-	total = readMargin()
+	total = readMargin("margin.conf")
 	
 	if supp == True:
-		total = total + margin
+		total = total + (margin/60)
 	else:
-		total = total - margin
+		total = total - (margin/60)
 	
 	fichier = open(PATH+"margin.conf","w")
 	
-	fichier.write("Total = "+margin)
+	fichier.write("Total = "+total)
 	
 	fichier.close()
 
-def compHours(total):
-	hours = readHour()
+def compHours(seconds):
+	hours = readHour(clock.conf)*60
 
-	if total < hours:
+	if seconds < hours:
 		
 		# Prevention message
-		msg = "It miss you: " + displayTime((hours*60)-(total*60))
+		msg = "It miss you: " + displayTime(hours-total)
 		
 		# Send mail
 		email= EmailSenderClass()
@@ -234,10 +234,10 @@ def compHours(total):
 		# Register margin
 		writeMargin(hours-total, True)
 		
-	elif total > hours:
+	elif seconds > hours:
 		
 		# Prevention message
-		msg = "You got: " + displayTime((total*60)-(hours*60)) + " more"
+		msg = "You got: " + displayTime(total-hours) + " more"
 		
 		# Send mail
 		email= EmailSenderClass()
@@ -306,6 +306,9 @@ def main(argv):
 					# Save the data into a file named week_work.log
 					filename = "week/."+str(datetime.now().isocalendar()[1])+".log"
 					saveFile("Time of work for this week: "+displayTime(total)+"\n", filename)
+					
+					# Make the review
+					compHours(total)
 			
 			else:
 				print("Lunch not started")
