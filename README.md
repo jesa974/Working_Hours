@@ -44,4 +44,5 @@ Available arguments :
 
 /!\ NOT READY YET /!\
 
-COMING SOON
+SQLite IN COMING
+Command replace by background activity checking / linux extension
