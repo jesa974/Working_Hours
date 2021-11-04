@@ -12,12 +12,12 @@ Working_Hours is a program that helps you determine if you are in agreement with
 Make the install script executable
 
 ```
-chmod +x
+sudo chmod +x clock_install.sh
 ```
 
 Launch the install script
 ```
-./clock_install.sh
+sudo ./clock_install.sh
 ```
 
 You will have some parameters to define :
