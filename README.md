@@ -22,9 +22,9 @@ sudo ./clock_install.sh
 
 You will have some parameters to define :
 
-  * configuration folder
-  * number of hours
-  * hourly rate
+  * configuration folder   --> predifined to ~/.clock
+  * number of hours        --> predifined to 35 hours
+  * hourly rate            --> predifined to 7,35€ per hour
 
 
 ---
@@ -43,7 +43,23 @@ Available arguments :
   * go           ---> when you finish working
 
 ---
+## Automation
+
+Scripts ***start*** when the *PC starts up* and ***end*** when the *PC is shut down*
+
+Must :
+
+  * **Start** your computer when you **start working**
+  * **Shut down** your computer when you **finish working**    
+
+Activity is check using the mouse
+ 
+  * If the user stop his mouse activity during **3min**, **break** is automatically declared
+  * If the user restart his mouse activity after **3min or more** of inactivty, **end of break** is automatically declared
+
+---
 ## Features in coming
 
 * SQLite
 * Background activity checking ***OR*** Linux extension
+* Break time can be modified via the installation script
