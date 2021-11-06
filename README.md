@@ -38,6 +38,8 @@ python3 clock.py help
 Available arguments :
 
   * enter        ---> when you start working
+  * break        ---> when you start a break
+  * break_end    ---> when you finish a break
   * lunch        ---> when you go to lunch
   * lunch_end    ---> when you finish your lunch
   * go           ---> when you finish working
