@@ -5,6 +5,7 @@
 import os
 from os import listdir
 from os.path import isfile, join
+import fnmatch
 
 import sys
 import time
@@ -100,7 +101,53 @@ def displayTime(seconds):
 def helpFunction():
 	print("HELP")
 	print("Valid arguments :")
-	print("enter -- lunch -- lunch_end -- go")
+	print("enter -- break -- break_end -- lunch -- lunch_end -- go")
+
+def verifyParity(value):
+	# Calculate the parity
+	result = value % 2
+	if(result == 0):
+		# It is pair
+		return 0
+	else:
+		# It is not pair
+		return 1
+
+def cleanBreaks():
+	# Init cpt value to 1
+	cpt = 1
+
+	# Count the number of break
+	num_break = len(fnmatch.filter(os.listdir(PATH+'day/'), 'break*'))
+	
+	# Cleaning break file
+	while cpt != num_break:
+		cleanFile(PATH+'day/break'+str(cpt)+'.txt')
+		cpt = cpt + 1
+
+	# Count the number of end_break
+	num_break = len(fnmatch.filter(os.listdir(PATH+'day/'), 'end_break*'))
+	
+	# Cleaning end_break file
+	while cpt != num_break:
+		cleanFile(PATH+'day/end_break'+str(cpt)+'.txt')
+		cpt = cpt + 1
+
+def calculateBreaks():
+	# Init total value to 0
+	total = 0
+
+	# Init cpt value to 1
+	cpt = 1
+
+	# Count the number of break
+	num_break = len(fnmatch.filter(os.listdir(PATH+'day/'), 'end_break*'))
+
+	# Calculate total time of breaks
+	while cpt != num_break:
+		total = total + readValue(PATH+'day/end_break'+str(cpt)+'.txt')
+	
+	return total
 
 def readValue(fileName):
 	fichier = open(PATH+fileName,"r")
@@ -151,7 +198,6 @@ def cleanFile(fileName):
 		print("File is deleted successfully")
 
 def recupFields(file):
-	
 	lunch = 0
 	work = 0
 	nb = 0
@@ -220,7 +266,8 @@ def writeMargin(margin, supp):
 	fichier.close()
 
 def compHours(seconds):
-	hours = readHour(clock.conf)*60
+	hours = readHour('clock.conf')*60
+	total = (seconds / 60) / 60
 
 	if seconds < hours:
 		
@@ -246,8 +293,13 @@ def compHours(seconds):
 		# Register margin
 		writeMargin(total-hours, False)
 		
-	else
+	else:
+		# Prevention message
+		msg = "You got: " + displayTime(total-hours) + " more"
 		
+		# Send mail
+		email= EmailSenderClass()
+		email.sendHtmlEmailTo("Admin","")
 		# TODO
 	
 
@@ -266,56 +318,180 @@ def main(argv):
 		if verifyFile("day/day.txt") == True:
 			
 			if verifyFile("day/lunch.txt") == True:
-		
-				print("Go out")
-				enter = float(readValue("day/day.txt"))
-				out = time.perf_counter()
 				
-				# Calculate time of work
-				strtime = displayTime(out-enter)
-				print("Work took :", strtime)
+				if len(fnmatch.filter(os.listdir(PATH+'day/'), 'break*')) != 0:
 				
-				# Save the data into a file named date_work.log
-				filename = "day/."+str(date.today())+".log"
-				saveFile("Time of work: "+strtime+"\n", filename)
-				
-				# Erase the file when exiting 
-				cleanFile("day/day.txt")
-				cleanFile("day/lunch.txt")
-				
-				# If Friday
-				d = date.today()
-				if d.weekday() == 4:
-					total = 0
-					my_dir = os.path.expanduser('~/.clock/day/')
-					week_dir = os.path.expanduser('~/.clock/week/')
-					fichiers = [f for f in listdir(my_dir) if isfile(join(my_dir, f))]
-					for fichier in fichiers:
-						if fichier != ".DS_Store":
-							# Print Name file
-							print(fichier)
-							# Read file
-							my_file = open(my_dir+fichier, "r")
-							# Get data 
-							result = recupFields(my_file)
-							total = total + result
-							print("Total : "+str(result))
-							my_file.close()
-					print("Total hours for this week : "+displayTime(total))
+					if verifyParity(len(fnmatch.filter(os.listdir(PATH+'day/'), 'break*'))) == 0:
+						
+						print("Breaks taken today")
+						total_break = calculateBreaks()
+						strtime = displayTime(total_break)
+						print("Breaks took :", strtime)
+
+						# Save the data into a file named date_work.log
+						filename = "day/."+str(date.today())+".log"
+						saveFile("Time of breaks: "+strtime+"\n", filename)
+
+						print("Go out")
+						enter = float(readValue("day/day.txt"))
+						out = time.perf_counter()
+						
+						# Calculate time of work
+						strtime = displayTime(out-enter)
+						print("Work took :", strtime)
+						
+						# Save the data into a file named date_work.log
+						filename = "day/."+str(date.today())+".log"
+						saveFile("Time of work: "+strtime+"\n", filename)
+						
+						# Erase the file when exiting 
+						cleanFile("day/day.txt")
+						cleanFile("day/lunch.txt")
+						cleanBreaks()
+						
+						# If Friday
+						d = date.today()
+						if d.weekday() == 4:
+							total = 0
+							fichiers = [f for f in listdir(PATH+'day/') if isfile(join(PATH+'day/', f))]
+							for fichier in fichiers:
+								if fichier != ".DS_Store":
+									# Print Name file
+									print(fichier)
+									# Read file
+									my_file = open(PATH+'day/'+fichier, "r")
+									# Get data 
+									result = recupFields(my_file)
+									total = total + result
+									print("Total : "+str(result))
+									my_file.close()
+							print("Total hours for this week : "+displayTime(total))
+							
+							# Save the data into a file named week_work.log
+							filename = "week/."+str(datetime.now().isocalendar()[1])+".log"
+							saveFile("Time of work for this week: "+displayTime(total)+"\n", filename)
+							
+							# Make the review
+							compHours(total)
 					
-					# Save the data into a file named week_work.log
-					filename = "week/."+str(datetime.now().isocalendar()[1])+".log"
-					saveFile("Time of work for this week: "+displayTime(total)+"\n", filename)
+					else:
+						print("Break not ended")
+
+				else:
+
+					print("No Break taken")
+
+					print("Go out")
+					enter = float(readValue("day/day.txt"))
+					out = time.perf_counter()
 					
-					# Make the review
-					compHours(total)
+					# Calculate time of work
+					strtime = displayTime(out-enter)
+					print("Work took :", strtime)
+					
+					# Save the data into a file named date_work.log
+					filename = "day/."+str(date.today())+".log"
+					saveFile("Time of work: "+strtime+"\n", filename)
+					
+					# Erase the file when exiting 
+					cleanFile("day/day.txt")
+					cleanFile("day/lunch.txt")
+					
+					# If Friday
+					d = date.today()
+					if d.weekday() == 4:
+						total = 0
+						my_dir = os.path.expanduser('~/.clock/day/')
+						week_dir = os.path.expanduser('~/.clock/week/')
+						fichiers = [f for f in listdir(my_dir) if isfile(join(my_dir, f))]
+						for fichier in fichiers:
+							if fichier != ".DS_Store":
+								# Print Name file
+								print(fichier)
+								# Read file
+								my_file = open(my_dir+fichier, "r")
+								# Get data 
+								result = recupFields(my_file)
+								total = total + result
+								print("Total : "+str(result))
+								my_file.close()
+						print("Total hours for this week : "+displayTime(total))
+						
+						# Save the data into a file named week_work.log
+						filename = "week/."+str(datetime.now().isocalendar()[1])+".log"
+						saveFile("Time of work for this week: "+displayTime(total)+"\n", filename)
+						
+						# Make the review
+						compHours(total)
 			
 			else:
 				print("Lunch not started")
 		
 		else:
 			print("Work not started")
+	
+	elif argv == "break":
 		
+		if verifyFile("day/day.txt") == True:
+			
+			print("Break start")
+			start = time.perf_counter()
+			
+			# Count the number of break
+			num_break = len(fnmatch.filter(os.listdir(PATH+'day/'), 'break*'))
+			
+			# Increment the number of break
+			if num_break == 0:
+				num_break = 1
+			else:
+				num_break = num_break + 1
+			
+			# Save the data into a file named break
+			saveFile(str(start), "day/break"+str(num_break)+".txt")
+		
+		else:
+			print("Work not started")
+	
+	elif argv == "break_end":
+		
+		if verifyFile("day/day.txt") == True:
+			
+			if len(fnmatch.filter(os.listdir(PATH+'day/'), 'break*')) != 0:
+				
+				if verifyParity(len(fnmatch.filter(os.listdir(PATH+'day/'), 'break*'))) == 1:
+
+					# Count the number of break
+					num_break = len(fnmatch.filter(os.listdir(PATH+'day/'), 'break*'))
+
+					print("Break end")
+					start = float(readValue("day/break"+str(num_break)+".txt"))
+					finish = time.perf_counter()
+					
+					# Calculate time of break
+					strtime = displayTime(finish-start)
+					print("Break took :", strtime)
+					
+					# Count the number of break
+					num_break = len(fnmatch.filter(os.listdir(PATH+'day/'), 'end_break*'))
+
+					# Increment the number of break
+					if num_break == 0:
+						num_break = 1
+					else:
+						num_break = num_break + 1
+
+					# Save the data into a file named end_break
+					saveFile(str(strtime), "day/end_break"+str(num_break)+".txt")
+
+				else:
+					print("Break not started")
+			
+			else:
+				print("Break not started")
+		
+		else:
+			print("Work not started")
+
 	elif argv == "lunch":
 	
 		if verifyFile("day/day.txt") == True:
