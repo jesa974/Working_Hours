@@ -65,3 +65,4 @@ Activity is check using the mouse
 * SQLite
 * Background activity checking ***OR*** Linux extension
 * Break time can be modified via the installation script
+* Windows & Mac Version
